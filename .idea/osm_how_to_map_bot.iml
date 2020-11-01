@@ -9,6 +9,7 @@
   </component>
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="C:\Users\ksetd\Documents\GitHub\osm_how_to_map_bot\requirements.txt" />
+    <option name="modifyBaseFiles" value="true" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="pytest" />
