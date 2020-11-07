@@ -71,5 +71,15 @@ def get_last_update():
 
 
 print((datetime.datetime.now() - get_last_update()) > wait_time_to_update)
-print((datetime.datetime.now() - get_last_update()))
-print(wait_time_to_update)
+
+
+def get_soup(wait=1):
+    now_time = datetime.datetime.now()
+    wait_time = datetime.timedelta(minutes=wait)
+    print()
+    if (now_time - get_last_update()) > wait_time:
+        print('get new')
+    else:
+        print('read from disk')
+
+get_soup()
