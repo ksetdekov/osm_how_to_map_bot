@@ -31,7 +31,11 @@ def get_last_update():
     conn = db.cursor()
     """get time of last parse data update"""
     conn.execute("SELECT stamp FROM updates WHERE ok = 1 ORDER BY stamp DESC LIMIT 1")
-    return datetime.datetime.strptime(conn.fetchone()[0], '%Y-%m-%d %H:%M:%S.%f')
+    rows_count = conn.rowcount
+    if rows_count > 0:
+        return datetime.datetime.strptime(conn.fetchone()[0], '%Y-%m-%d %H:%M:%S.%f')
+    else:
+        return datetime.datetime.strptime('2020-01-01 01:00:0.0', '%Y-%m-%d %H:%M:%S.%f')
 
 
 def get_soup(wait=5):
