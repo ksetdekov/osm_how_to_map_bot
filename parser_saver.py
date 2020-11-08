@@ -1,9 +1,9 @@
 import datetime
 import sqlite3
 
-from bs4 import BeautifulSoup
 import bs4
 import requests
+from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
 # set db connection
@@ -41,6 +41,10 @@ def get_soup(wait=1):
         bs_soup = BeautifulSoup(how_to_map, 'lxml')
         with open("parse.html", "w", newline='', encoding="utf-8") as f:
             f.write(how_to_map)
+        try:
+            add_time(1)
+        except sqlite3.OperationalError:
+            add_time(0)
         return bs_soup
     else:
         # read it back in
@@ -51,7 +55,7 @@ def get_soup(wait=1):
 
 def result_find(question):
     """это функция, которая находит раздел, уровень соответствия и содеражимое по запросу"""
-    soup = get_soup()
+    soup = get_soup()  # берез или скачивает суп
 
     h3s = soup.find_all('h3')
     # тут вводится какое поиск мы делаем
@@ -59,15 +63,16 @@ def result_find(question):
     matches = {}
     for i in h3s:
         str1 = i.text
-        partial_ratio = fuzz.ratio(str1.lower(), str2.lower())
+        partial_ratio = fuzz.ratio(str1.lower(), str2.lower())  # расчитывает рейтинг похожести строки с заголовком
         matches[i.text] = (partial_ratio, i)
 
     x = sorted(matches, key=lambda k: matches[k][0], reverse=True)
-    section, confidence = matches[x[0]][0], x[0]  # находим раздел
+    section, confidence = matches[x[0]][0], x[0]  # находим раздел с максимальной похожестью
 
-    position = h3s.index(matches[x[0]][1])
+    position = h3s.index(matches[x[0]][1])  # берем его позицию
 
     text_content = []  # basic response
+    # конструкция ниже - вытаскивает оценку
     for header in h3s[position:position + 1]:
         next_node = header
         while True:
@@ -81,3 +86,5 @@ def result_find(question):
                     break
                 text_content.append(next_node.get_text().strip())
     return confidence, section, ''.join(text_content)
+
+# print(result_find("Здание")) # так идет вывод данных
