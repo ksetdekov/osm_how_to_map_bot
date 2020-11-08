@@ -34,7 +34,7 @@ def get_last_update():
     return datetime.datetime.strptime(conn.fetchone()[0], '%Y-%m-%d %H:%M:%S.%f')
 
 
-def get_soup(wait=30):
+def get_soup(wait=5):
     """если данные обновлены свежее, чем wait минут назад - взять с диска, иначе - парсить с сайта"""
     now_time = datetime.datetime.now()
     wait_time = datetime.timedelta(minutes=wait)
