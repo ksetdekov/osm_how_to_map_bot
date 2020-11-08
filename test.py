@@ -2,7 +2,7 @@ import time
 
 from parser_saver import *
 
-print(get_last_update())
+print((result_find("Здание")))
 
 time.sleep(1)
-print(get_last_update())
+print((result_find("Здание")))

@@ -7,10 +7,10 @@ from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
 # set db connection
-db = sqlite3.connect("data.sqlite")
-conn = db.cursor()
+db_outer = sqlite3.connect("data.sqlite")
+conn_outer = db_outer.cursor()
 
-conn.execute("""
+conn_outer.execute("""
 CREATE TABLE IF NOT EXISTS "updates" (
     "stamp"	TEXT,
     "ok"	NUMERIC
@@ -19,12 +19,16 @@ CREATE TABLE IF NOT EXISTS "updates" (
 
 
 def add_time(status):
+    db = sqlite3.connect("data.sqlite")
+    conn = db.cursor()
     """write time of parse data update"""
     conn.execute("INSERT INTO updates (stamp,ok) VALUES (?,?)", (datetime.datetime.now(), status))
     db.commit()
 
 
 def get_last_update():
+    db = sqlite3.connect("data.sqlite")
+    conn = db.cursor()
     """get time of last parse data update"""
     conn.execute("SELECT stamp FROM updates WHERE ok = 1 ORDER BY stamp DESC LIMIT 1")
     return datetime.datetime.strptime(conn.fetchone()[0], '%Y-%m-%d %H:%M:%S.%f')
