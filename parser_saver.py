@@ -2,6 +2,7 @@ import datetime
 import sqlite3
 
 from bs4 import BeautifulSoup
+import bs4
 import requests
 from fuzzywuzzy import fuzz
 
@@ -18,21 +19,29 @@ matches = {}
 for i in h3s:
     Str1 = i.text
     Partial_Ratio = fuzz.ratio(Str1.lower(), Str2.lower())
-    print(i.text, Partial_Ratio)
-    matches[i.text] = Partial_Ratio
+    matches[i.text] = (Partial_Ratio, i)
 
-x = sorted(matches, key=matches.get, reverse=True)
-for k in x[:1]:
-    print(matches[k], k)
-    if matches[k] < 10:
-        break
+x = sorted(matches, key=lambda k: matches[k][0], reverse=True)
+print(matches[x[0]][0], x[0])  # находим раздел
 
 # todo найти способ выбрать все между h3
 # todo найти способ вывести это
 # todo найти способ вывести это по запросу
+position = h3s.index(matches[x[0]][1])
 
+for header in h3s[position:position+1]:
+    nextNode = header
+    while True:
+        nextNode = nextNode.nextSibling
+        if nextNode is None:
+            break
+        if isinstance(nextNode, bs4.NavigableString):
+            print(nextNode.strip())
+        if isinstance(nextNode, bs4.Tag):
+            if nextNode.name == "h3":
+                break
+            print(nextNode.get_text().strip())
 
-print(soup.find('h3').next_sibling)
 now = datetime.datetime.now()
 with open("parse.html", "w", newline='', encoding="utf-8") as f:
     f.write(how_to_map)
@@ -43,8 +52,6 @@ with open("parse.html", newline='', encoding="utf-8") as f:
     # do something with soup
 # set the limit how often to update
 wait_time_to_update = datetime.timedelta(minutes=1)
-
-print((datetime.datetime.now() - now) * 1000 > wait_time_to_update)
 
 db = sqlite3.connect("data.sqlite")
 conn = db.cursor()
@@ -60,9 +67,6 @@ CREATE TABLE IF NOT EXISTS "updates" (
 def add_time(status):
     conn.execute("INSERT INTO updates (stamp,ok) VALUES (?,?)", (datetime.datetime.now(), status))
     db.commit()
-
-
-# add_time(1)
 
 
 def get_last_update():
@@ -81,5 +85,6 @@ def get_soup(wait=1):
         print('get new')
     else:
         print('read from disk')
+
 
 get_soup()
